@@ -1,0 +1,3 @@
+[submodule "src-rhwp"]
+	path = src-rhwp
+	url = https://github.com/edwardkim/rhwp.git

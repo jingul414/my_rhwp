@@ -1,0 +1,45 @@
+name: "Check Upstream rhwp Update"
+
+on:
+  schedule:
+    - cron: '0 * * * *' # 매시간 체크
+  workflow_dispatch:
+
+jobs:
+  check-and-update:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 1. 코드 체크아웃
+        uses: actions/checkout@v4
+        with:
+          submodules: 'recursive'
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 2. 서브모듈 업스트림 변경 확인
+        id: check
+        run: |
+          cd src-rhwp
+          git fetch origin
+          LOCAL=$(git rev-parse HEAD)
+          REMOTE=$(git rev-parse origin/main)
+          echo "local=$LOCAL"
+          echo "remote=$REMOTE"
+          if [ "$LOCAL" != "$REMOTE" ]; then
+            echo "updated=true" >> $GITHUB_OUTPUT
+          else
+            echo "updated=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: 3. 서브모듈 업데이트 및 커밋 푸시
+        if: steps.check.outputs.updated == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          cd src-rhwp
+          git checkout origin/main
+          cd ..
+          git add src-rhwp
+          git commit -m "chore: update src-rhwp to latest upstream"
+          git push

@@ -44,7 +44,10 @@ jobs:
       - name: 7. wasm-pack 설치
         run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
 
-      - name: 8. Tauri 앱 빌드 및 Release 업로드
+      - name: 8. 루트 패키지 설치 (@tauri-apps/cli 포함)
+        run: npm install
+
+      - name: 9. Tauri 앱 빌드 및 Release 업로드
         uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

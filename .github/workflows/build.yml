@@ -13,11 +13,13 @@ jobs:
       - name: 1. 내 코드와 서브모듈 가져오기
         uses: actions/checkout@v4
         with:
-          submodules: recursive # 서브모듈(rhwp) 코드를 전부 가져옵니다.
+          submodules: 'recursive'
+          fetch-depth: 0 # 전체 히스토리를 가져와 서브모듈 동기화 오류 방지
 
-      - name: 2. 원본 rhwp 최신 버전으로 업데이트 (자동)
+      - name: 2. 서브모듈 강제 초기화 및 업데이트
         run: |
-          git submodule update --remote --recursive
+          git submodule init
+          git submodule update --recursive
 
       - name: 3. 리눅스 앱 개발용 필수 패키지 설치
         run: |

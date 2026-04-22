@@ -9,24 +9,24 @@
 
 ## Phase 1 — Tauri 네이티브 연결 (진행 중)
 
-### 1-1. 파일 열기: 네이티브 OS 다이얼로그 연결
-- `tauri-plugin-dialog` 추가 (Cargo.toml + capabilities)
-- `src-tauri/src/lib.rs`에 `open_file` 커맨드 구현
-  - Tauri 파일 다이얼로그 → 파일 bytes 읽어서 반환
-- rhwp-studio `file:open` 커맨드에서 Tauri IPC 호출로 교체
-  - `src-rhwp`는 서브모듈이므로 직접 수정 불가
-  - rhwp-studio의 `file:open` 커맨드를 오버라이드하는 패치 스크립트 또는 Tauri `__TAURI__` 환경 감지 방식 사용
+### ~~1-1. 파일 열기: 네이티브 OS 다이얼로그 연결~~
+- ~~`tauri-plugin-dialog` 추가 (Cargo.toml + capabilities)~~
+- ~~`src-tauri/src/lib.rs`에 `open_file` 커맨드 구현~~
+  - ~~Tauri 파일 다이얼로그 → 파일 bytes 읽어서 반환~~
+- ~~rhwp-studio `file:open` 커맨드에서 Tauri IPC 호출로 교체~~
+  - ~~`src-rhwp`는 서브모듈이므로 직접 수정 불가~~
+  - ~~rhwp-studio의 `file:open` 커맨드를 오버라이드하는 패치 스크립트 또는 Tauri `__TAURI__` 환경 감지 방식 사용~~
 
-### 1-2. 창 제목 파일명 표시
-- 파일 열릴 때 `appWindow.setTitle("RHWP Desktop — 파일명.hwp")` 호출
+### ~~1-2. 창 제목 파일명 표시~~
+- ~~파일 열릴 때 `appWindow.setTitle("RHWP Desktop — 파일명.hwp")` 호출~~
 
 ---
 
 ## Phase 2 — UX 개선
 
-### 2-1. 최근 파일 목록
-- `tauri-plugin-store`로 최근 파일 경로 로컬 저장
-- 앱 시작 시 "최근 파일" 목록 표시
+### ~~2-1. 최근 파일 목록~~
+- ~~`tauri-plugin-store`로 최근 파일 경로 로컬 저장~~ (앱 데이터 디렉토리 JSON으로 구현)
+- ~~앱 시작 시 "최근 파일" 목록 표시~~ (파일 메뉴 열릴 때 동적 주입)
 
 ### 2-2. 드래그 앤 드롭으로 파일 열기
 - Tauri `drag-drop` 이벤트로 파일 경로 수신

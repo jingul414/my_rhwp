@@ -11,13 +11,6 @@
   },
   "app": {
     "withGlobalTauri": true,
-    "windows": [
-      {
-        "title": "RHWP Desktop",
-        "width": 1280,
-        "height": 800
-      }
-    ],
     "security": {
       "csp": null
     }

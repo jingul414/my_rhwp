@@ -15,7 +15,7 @@ jobs:
         with:
           submodules: 'recursive'
           fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.PAT }}
 
       - name: 2. 서브모듈 업스트림 변경 확인
         id: check

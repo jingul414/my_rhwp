@@ -6,7 +6,7 @@
   "build": {
     "beforeDevCommand": "wasm-pack build src-rhwp --target web --dev && npm --prefix src-rhwp/rhwp-studio install && npm --prefix src-rhwp/rhwp-studio run dev",
     "devUrl": "http://localhost:7700",
-    "beforeBuildCommand": "wasm-pack build src-rhwp --target web && npm --prefix src-rhwp/rhwp-studio install && npm --prefix src-rhwp/rhwp-studio run build",
+    "beforeBuildCommand": "[ \"${CI}\" = \"true\" ] || wasm-pack build src-rhwp --target web && npm --prefix src-rhwp/rhwp-studio install && npm --prefix src-rhwp/rhwp-studio run build",
     "frontendDist": "../src-rhwp/rhwp-studio/dist"
   },
   "app": {

@@ -36,18 +36,32 @@ jobs:
         with:
           targets: wasm32-unknown-unknown
 
-      - name: 6. Rust 빌드 캐시
+      - name: 6. Rust 빌드 캐시 (Tauri + rhwp WASM 중간 산출물)
         uses: Swatinem/rust-cache@v2
         with:
-          workspaces: src-tauri
+          workspaces: |
+            src-tauri
+            src-rhwp
 
-      - name: 7. wasm-pack 설치
+      - name: 7. WASM pkg 캐시 확인
+        id: wasm-cache
+        uses: actions/cache@v4
+        with:
+          path: src-rhwp/pkg
+          key: wasm-pkg-${{ hashFiles('src-rhwp/src/**', 'src-rhwp/Cargo.toml', 'src-rhwp/Cargo.lock') }}
+
+      - name: 8. wasm-pack 설치 (캐시 미스 시만)
+        if: steps.wasm-cache.outputs.cache-hit != 'true'
         run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
 
-      - name: 8. 루트 패키지 설치 (@tauri-apps/cli 포함)
+      - name: 9. wasm-pack 빌드 (캐시 미스 시만)
+        if: steps.wasm-cache.outputs.cache-hit != 'true'
+        run: wasm-pack build src-rhwp --target web
+
+      - name: 10. 루트 패키지 설치 (@tauri-apps/cli 포함)
         run: npm install
 
-      - name: 9. Tauri 앱 빌드 및 Release 업로드
+      - name: 11. Tauri 앱 빌드 및 Release 업로드
         uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

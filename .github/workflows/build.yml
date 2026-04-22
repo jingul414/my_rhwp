@@ -62,7 +62,7 @@ jobs:
         run: wasm-pack build src-rhwp --target web
 
       - name: 10. 루트 패키지 설치 (@tauri-apps/cli 포함)
-        run: npm install
+        run: npm ci
 
       - name: 11. Tauri 앱 빌드 및 Release 업로드
         uses: tauri-apps/tauri-action@v0

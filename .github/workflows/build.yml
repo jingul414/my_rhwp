@@ -21,10 +21,11 @@ jobs:
           git submodule init
           git submodule update --recursive
 
-      - name: 3. 리눅스 빌드 의존성 설치
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libwebkit2gtk-4.1-dev build-essential curl wget file libssl-dev libgtk-3-dev libayatana-appindicator3-dev librsvg2-dev
+      - name: 3. 리눅스 빌드 의존성 설치 (apt 캐시 적용)
+        uses: awalsh128/cache-apt-pkgs-action@latest
+        with:
+          packages: libwebkit2gtk-4.1-dev build-essential curl wget file libssl-dev libgtk-3-dev libayatana-appindicator3-dev librsvg2-dev
+          version: 1.0
 
       - name: 4. Node.js 세팅
         uses: actions/setup-node@v4

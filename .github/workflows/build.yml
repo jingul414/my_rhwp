@@ -64,6 +64,19 @@ jobs:
       - name: 10. 루트 패키지 설치 (@tauri-apps/cli 포함)
         run: npm ci
 
+      - name: 10-1. 릴리즈 변경 내역 생성
+        id: changelog
+        run: |
+          {
+            echo 'body<<CHANGELOG_EOF'
+            echo "자동 빌드된 리눅스용 설치 파일(.deb)입니다."
+            echo ""
+            echo "## 변경 내역"
+            git log --oneline -10 --no-merges --pretty=format:"- %s"
+            echo ""
+            echo 'CHANGELOG_EOF'
+          } >> "$GITHUB_OUTPUT"
+
       - name: 11. Tauri 앱 빌드 및 Release 업로드
         uses: tauri-apps/tauri-action@v0
         env:
@@ -71,7 +84,7 @@ jobs:
         with:
           tagName: v0.1.0-${{ github.run_number }}
           releaseName: "RHWP Desktop Build #${{ github.run_number }}"
-          releaseBody: "자동 빌드된 리눅스용 설치 파일(.deb)입니다."
+          releaseBody: ${{ steps.changelog.outputs.body }}
           releaseDraft: false
           prerelease: false
           args: --bundles deb

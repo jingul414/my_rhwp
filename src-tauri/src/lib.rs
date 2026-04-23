@@ -80,6 +80,40 @@ async fn open_recent_file(app: tauri::AppHandle, path: String) -> Result<Option<
 }
 
 #[tauri::command]
+async fn save_file(path: String, data_b64: String) -> Result<(), String> {
+    let bytes = base64::engine::general_purpose::STANDARD
+        .decode(&data_b64)
+        .map_err(|e| e.to_string())?;
+    let path_buf = std::path::PathBuf::from(&path);
+    let temp_path = path_buf.with_file_name(format!(
+        ".{}.tmp",
+        path_buf.file_name().and_then(|n| n.to_str()).unwrap_or("document")
+    ));
+    std::fs::write(&temp_path, &bytes).map_err(|e| e.to_string())?;
+    std::fs::rename(&temp_path, &path_buf).map_err(|e| {
+        let _ = std::fs::remove_file(&temp_path);
+        e.to_string()
+    })
+}
+
+#[tauri::command]
+async fn pick_save_path(app: tauri::AppHandle, file_name: String) -> Result<Option<String>, String> {
+    let (tx, rx) = tokio::sync::oneshot::channel();
+    app.dialog()
+        .file()
+        .add_filter("HWP 문서", &["hwp", "hwpx"])
+        .set_file_name(&file_name)
+        .save_file(move |path| {
+            let _ = tx.send(path);
+        });
+    let path = rx.await.map_err(|e| e.to_string())?;
+    Ok(path.and_then(|p| match p {
+        tauri_plugin_dialog::FilePath::Path(p) => Some(p.to_string_lossy().into_owned()),
+        _ => None,
+    }))
+}
+
+#[tauri::command]
 async fn pick_hwp_file(app: tauri::AppHandle) -> Result<Option<OpenedFile>, String> {
     let (tx, rx) = tokio::sync::oneshot::channel();
 
@@ -131,6 +165,8 @@ pub fn run() {
             get_recent_files,
             add_recent_file,
             open_recent_file,
+            save_file,
+            pick_save_path,
         ])
         .setup(|app| {
             tauri::WebviewWindowBuilder::new(

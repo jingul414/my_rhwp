@@ -49,10 +49,11 @@
 - ~~CLI 인수(`rhwp-desktop file.hwp`)로 파일 열기 구현 필요 (파일 연결 동작의 전제 조건)~~
 - ~~MIME 타입 등록 (.deb 패키지에 포함)~~
 
-### 3-3. 네이티브 저장 다이얼로그
-- rhwp-studio의 `file:save`는 WebKit에서 File System Access API 미지원으로 브라우저 다운로드 폴백
-- `file:open`과 동일한 방식으로 Tauri 네이티브 save 다이얼로그로 교체
-- tauri-bridge.js에서 저장 커맨드 오버라이드
+### ~~3-3. 네이티브 저장 다이얼로그~~
+- ~~rhwp-studio의 `file:save`는 WebKit에서 File System Access API 미지원으로 브라우저 다운로드 폴백~~
+- ~~blob 다운로드 가로채기로 네이티브 저장 구현~~
+- ~~저장: 원본 경로 덮어쓰기 (temp→rename 원자적 방식)~~
+- ~~다른 이름으로 저장: 주입 메뉴 항목 + Tauri 네이티브 save 다이얼로그~~
 
 ---
 

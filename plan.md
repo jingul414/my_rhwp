@@ -28,12 +28,12 @@
 - ~~`tauri-plugin-store`로 최근 파일 경로 로컬 저장~~ (앱 데이터 디렉토리 JSON으로 구현)
 - ~~앱 시작 시 "최근 파일" 목록 표시~~ (파일 메뉴 열릴 때 동적 주입)
 
-### 2-2. 드래그 앤 드롭으로 파일 열기
-- Tauri `drag-drop` 이벤트로 파일 경로 수신
-- rhwp-studio에 bytes 전달
+### ~~2-2. 드래그 앤 드롭으로 파일 열기~~
+- ~~Tauri `drag-drop` 이벤트로 파일 경로 수신~~
+- ~~rhwp-studio에 bytes 전달~~
 
-### 2-3. 앱 아이콘 교체
-- `src-tauri/icons/`에 rhwp 로고 적용 (`src-rhwp/assets/logo/` 활용)
+### ~~2-3. 앱 아이콘 교체~~
+- ~~`src-tauri/icons/`에 rhwp 로고 적용 (`src-rhwp/assets/logo/` 활용)~~
 
 ---
 

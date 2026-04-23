@@ -71,8 +71,8 @@ jobs:
             echo 'body<<CHANGELOG_EOF'
             echo "자동 빌드된 리눅스용 설치 파일(.deb)입니다."
             echo ""
-            echo "## 변경 내역"
-            git log -n 1 --no-merges --pretty=format:"- %s"
+            echo "## 변경 내역(최근 3개 커밋)"
+            git log -n 3 --no-merges --pretty=format:"- %s"
             echo ""
             echo 'CHANGELOG_EOF'
           } >> "$GITHUB_OUTPUT"

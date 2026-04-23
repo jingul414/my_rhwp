@@ -90,6 +90,22 @@
     });
   }
 
+  // 드래그 앤 드롭으로 파일 열기
+  window.__TAURI__.event.listen('tauri://drag-drop', async function (event) {
+    var paths = event.payload.paths;
+    if (!paths || paths.length === 0) return;
+    var hwpPath = paths.find(function (p) { return /\.(hwp|hwpx)$/i.test(p); });
+    if (!hwpPath) return;
+    try {
+      var result = await invoke('open_recent_file', { path: hwpPath });
+      if (!result) return;
+      invoke('add_recent_file', { path: result.file_path, name: result.file_name });
+      await loadAndSendFile(result);
+    } catch (e) {
+      console.error('[tauri-bridge] 드래그 앤 드롭 열기 실패:', e);
+    }
+  });
+
   function patchFileInput() {
     var input = document.getElementById('file-input');
     if (input) input.click = openWithTauri;

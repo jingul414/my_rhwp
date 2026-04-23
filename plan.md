@@ -7,7 +7,7 @@
 
 ---
 
-## Phase 1 — Tauri 네이티브 연결 (진행 중)
+## Phase 1 — Tauri 네이티브 연결
 
 ### ~~1-1. 파일 열기: 네이티브 OS 다이얼로그 연결~~
 - ~~`tauri-plugin-dialog` 추가 (Cargo.toml + capabilities)~~
@@ -40,12 +40,19 @@
 ## Phase 3 — 추가 기능
 
 ### 3-1. PDF 내보내기
-- rhwp native PDF 기능 활용 (`svg2pdf`, `usvg`)
-- Tauri `save` 다이얼로그로 저장 경로 선택
+- ⚠️ rhwp PDF 지원은 v2.0 예정 — 현재 구현 불가, 보류
+- rhwp v2.0 이후 WASM PDF API 확인 후 재검토
 
-### 3-2. 파일 연결 (더블클릭으로 열기)
+### 3-2. 파일 연결 + CLI 파일 인수 (더블클릭으로 열기)
 - `.hwp`, `.hwpx` 파일을 시스템에 앱으로 등록
 - `tauri.conf.json` `fileAssociations` 설정
+- CLI 인수(`rhwp-desktop file.hwp`)로 파일 열기 구현 필요 (파일 연결 동작의 전제 조건)
+- MIME 타입 등록 (.deb 패키지에 포함)
+
+### 3-3. 네이티브 저장 다이얼로그
+- rhwp-studio의 `file:save`는 WebKit에서 File System Access API 미지원으로 브라우저 다운로드 폴백
+- `file:open`과 동일한 방식으로 Tauri 네이티브 save 다이얼로그로 교체
+- tauri-bridge.js에서 저장 커맨드 오버라이드
 
 ---
 
@@ -53,7 +60,7 @@
 
 현재 병목: wasm-pack이 매번 rhwp 전체를 WASM으로 재컴파일 (수십 분 소요)
 
-### O-1. WASM pkg 캐시 — 효과 ★★★ (즉시 적용 권장)
+### O-1. WASM pkg 캐시 — 적용완료
 `src-rhwp/pkg/`를 소스 파일 해시로 캐시.
 rhwp Rust 소스가 바뀌지 않으면 wasm-pack 빌드를 완전히 건너뜀.
 
@@ -69,7 +76,7 @@ rhwp Rust 소스가 바뀌지 않으면 wasm-pack 빌드를 완전히 건너뜀.
   run: wasm-pack build src-rhwp --target web
 ```
 
-### O-2. Rust 컴파일 캐시 범위 확장 — 효과 ★★☆
+### O-2. Rust 컴파일 캐시 범위 확장 — O-1 적용시 효과 미비로 적용 x
 `Swatinem/rust-cache`의 workspaces에 `src-rhwp` 추가.
 WASM 캐시 미스 시 wasm32 타겟 중간 산출물을 재사용.
 
@@ -81,7 +88,7 @@ WASM 캐시 미스 시 wasm32 타겟 중간 산출물을 재사용.
       src-rhwp
 ```
 
-### O-3. rhwp-studio node_modules 캐시 — 효과 ★☆☆
+### O-3. rhwp-studio node_modules 캐시 — 예정?
 package.json이 바뀌지 않으면 npm install 건너뜀.
 
 ```yaml

@@ -106,9 +106,26 @@
     }
   });
 
+  async function checkStartupFile() {
+    try {
+      var path = await invoke('get_startup_file');
+      if (!path) return;
+      // WASM 초기화 대기 후 파일 로드
+      setTimeout(async function () {
+        var result = await invoke('open_recent_file', { path: path });
+        if (!result) return;
+        invoke('add_recent_file', { path: result.file_path, name: result.file_name });
+        await loadAndSendFile(result);
+      }, 2000);
+    } catch (e) {
+      console.error('[tauri-bridge] 시작 파일 열기 실패:', e);
+    }
+  }
+
   function patchFileInput() {
     var input = document.getElementById('file-input');
     if (input) input.click = openWithTauri;
+    checkStartupFile();
 
     // 파일 메뉴가 열릴 때마다 최근 파일 목록 갱신
     var fileMenuItem = document.querySelector('[data-menu="file"]');

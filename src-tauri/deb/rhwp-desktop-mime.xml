@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
+  <mime-type type="application/x-hwp">
+    <comment>HWP 문서</comment>
+    <comment xml:lang="en">HWP Document</comment>
+    <glob pattern="*.hwp"/>
+  </mime-type>
+  <mime-type type="application/x-hwpx">
+    <comment>HWPX 문서</comment>
+    <comment xml:lang="en">HWPX Document</comment>
+    <glob pattern="*.hwpx"/>
+  </mime-type>
+</mime-info>

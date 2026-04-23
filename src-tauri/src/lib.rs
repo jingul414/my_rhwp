@@ -1,6 +1,9 @@
 use tauri_plugin_dialog::DialogExt;
 use base64::Engine as _;
 use tauri::Manager;
+use std::sync::Mutex;
+
+struct StartupFile(Mutex<Option<String>>);
 
 #[derive(serde::Serialize)]
 struct OpenedFile {
@@ -37,6 +40,11 @@ fn save_recent_files(app: &tauri::AppHandle, files: &[RecentFile]) {
     if let Ok(content) = serde_json::to_string(files) {
         let _ = std::fs::write(path, content);
     }
+}
+
+#[tauri::command]
+fn get_startup_file(state: tauri::State<StartupFile>) -> Option<String> {
+    state.0.lock().unwrap().take()
 }
 
 #[tauri::command]
@@ -105,11 +113,21 @@ async fn pick_hwp_file(app: tauri::AppHandle) -> Result<Option<OpenedFile>, Stri
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
+    let startup_file = std::env::args()
+        .skip(1)
+        .find(|arg| {
+            !arg.starts_with('-')
+                && (arg.ends_with(".hwp") || arg.ends_with(".hwpx")
+                    || arg.ends_with(".HWP") || arg.ends_with(".HWPX"))
+        });
+
     tauri::Builder::default()
+        .manage(StartupFile(Mutex::new(startup_file)))
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_dialog::init())
         .invoke_handler(tauri::generate_handler![
             pick_hwp_file,
+            get_startup_file,
             get_recent_files,
             add_recent_file,
             open_recent_file,

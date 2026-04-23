@@ -43,11 +43,11 @@
 - ⚠️ rhwp PDF 지원은 v2.0 예정 — 현재 구현 불가, 보류
 - rhwp v2.0 이후 WASM PDF API 확인 후 재검토
 
-### 3-2. 파일 연결 + CLI 파일 인수 (더블클릭으로 열기)
-- `.hwp`, `.hwpx` 파일을 시스템에 앱으로 등록
-- `tauri.conf.json` `fileAssociations` 설정
-- CLI 인수(`rhwp-desktop file.hwp`)로 파일 열기 구현 필요 (파일 연결 동작의 전제 조건)
-- MIME 타입 등록 (.deb 패키지에 포함)
+### ~~3-2. 파일 연결 + CLI 파일 인수 (더블클릭으로 열기)~~
+- ~~`.hwp`, `.hwpx` 파일을 시스템에 앱으로 등록~~
+- ~~`tauri.conf.json` `fileAssociations` 설정~~
+- ~~CLI 인수(`rhwp-desktop file.hwp`)로 파일 열기 구현 필요 (파일 연결 동작의 전제 조건)~~
+- ~~MIME 타입 등록 (.deb 패키지에 포함)~~
 
 ### 3-3. 네이티브 저장 다이얼로그
 - rhwp-studio의 `file:save`는 WebKit에서 File System Access API 미지원으로 브라우저 다운로드 폴백

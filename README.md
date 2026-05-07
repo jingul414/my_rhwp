@@ -37,6 +37,15 @@ oh-my-han-word/
     └── check-upstream.yml  # rhwp upstream 변경 감지 → 자동 빌드 트리거
 ```
 
+## 개발/빌드 메모
+
+서브모듈 `src-rhwp`의 현재 요구 사항은 Rust 1.75+, Node.js 18+입니다. 데스크탑 앱 빌드는 다음 산출물을 사용합니다.
+
+- `wasm-pack build src-rhwp --target web` → `src-rhwp/pkg/`
+- `npm --prefix src-rhwp/rhwp-studio run build` → `src-rhwp/rhwp-studio/dist/`
+
+Tauri 설정은 `src-rhwp/rhwp-studio/dist`를 `frontendDist`로 사용합니다. CI의 `CI=true` 조건은 캐시된 `src-rhwp/pkg`가 있을 때 `wasm-pack` 재빌드만 건너뛰기 위한 것이며, `rhwp-studio` 설치와 빌드는 Tauri `beforeBuildCommand`에서 계속 실행됩니다.
+
 ## 라이선스
 
 MIT — 단, 서브모듈 [rhwp](https://github.com/edwardkim/rhwp)는 해당 프로젝트의 라이선스를 따릅니다.

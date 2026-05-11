@@ -64,15 +64,86 @@ jobs:
       - name: 10. 루트 패키지 설치 (@tauri-apps/cli 포함)
         run: npm ci
 
-      - name: 10-1. 릴리즈 변경 내역 생성
-        id: changelog
+      - name: 10-1. upstream rhwp 릴리즈 노트 가져오기
+        if: "${{ github.event_name == 'push' && startsWith(github.event.head_commit.message, 'chore: update src-rhwp to latest upstream') }}"
+        id: upstream-notes
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          set -euo pipefail
+
+          git -C src-rhwp fetch --tags origin
+
+          UPSTREAM_SHA="$(git -C src-rhwp rev-parse --short HEAD)"
+          UPSTREAM_TAG="$(git -C src-rhwp describe --tags --exact-match 2>/dev/null || true)"
+          UPSTREAM_URL="https://github.com/edwardkim/rhwp/commit/${UPSTREAM_SHA}"
+          RELEASE_BODY=""
+
+          if [ -n "$UPSTREAM_TAG" ]; then
+            UPSTREAM_URL="https://github.com/edwardkim/rhwp/releases/tag/${UPSTREAM_TAG}"
+            API_URL="https://api.github.com/repos/edwardkim/rhwp/releases/tags/${UPSTREAM_TAG}"
+            RELEASE_JSON="$(curl -fsSL \
+              -H "Accept: application/vnd.github+json" \
+              -H "Authorization: Bearer ${GITHUB_TOKEN}" \
+              "$API_URL" || true)"
+
+            if [ -n "$RELEASE_JSON" ]; then
+              RELEASE_BODY="$(printf '%s' "$RELEASE_JSON" | jq -r '.body // empty')"
+            fi
+          fi
+
+          {
+            echo "tag=${UPSTREAM_TAG:-untagged}"
+            echo "sha=${UPSTREAM_SHA}"
+            echo "url=${UPSTREAM_URL}"
+            echo 'body<<UPSTREAM_RELEASE_NOTES_EOF'
+            if [ -n "$RELEASE_BODY" ]; then
+              printf '%s\n' "$RELEASE_BODY"
+            else
+              echo "upstream GitHub Release 노트를 찾지 못했습니다. 자세한 내용은 ${UPSTREAM_URL} 를 확인하세요."
+            fi
+            echo 'UPSTREAM_RELEASE_NOTES_EOF'
+          } >> "$GITHUB_OUTPUT"
+
+      - name: 10-2. 릴리즈 변경 내역 생성
+        id: changelog
+        env:
+          IS_UPSTREAM_AUTO_UPDATE: "${{ github.event_name == 'push' && startsWith(github.event.head_commit.message, 'chore: update src-rhwp to latest upstream') }}"
+          UPSTREAM_TAG: ${{ steps.upstream-notes.outputs.tag }}
+          UPSTREAM_SHA: ${{ steps.upstream-notes.outputs.sha }}
+          UPSTREAM_URL: ${{ steps.upstream-notes.outputs.url }}
+          UPSTREAM_RELEASE_BODY: ${{ steps.upstream-notes.outputs.body }}
+        run: |
+          HEAD_SUBJECT="$(jq -r '.head_commit.message // "" | split("\n")[0]' "$GITHUB_EVENT_PATH")"
+
           {
             echo 'body<<CHANGELOG_EOF'
             echo "자동 빌드된 리눅스용 설치 파일(.deb)입니다."
             echo ""
-            echo "## 변경 내역(최근 3개 커밋)"
-            git log -n 3 --no-merges --pretty=format:"- %s"
+
+            if [ "${IS_UPSTREAM_AUTO_UPDATE}" = "true" ]; then
+              echo "## 변경 내역"
+              echo "- ${HEAD_SUBJECT:-chore: update src-rhwp to latest upstream}"
+              echo ""
+              echo "---"
+              echo ""
+              echo "## 서브모듈의 릴리즈 노트"
+              echo ""
+              echo "- 버전/태그: ${UPSTREAM_TAG}"
+              echo "- 커밋: ${UPSTREAM_SHA}"
+              echo "- 링크: ${UPSTREAM_URL}"
+              echo ""
+              printf '%s\n' "${UPSTREAM_RELEASE_BODY}"
+            else
+              echo "## 변경 내역"
+              COMMIT_LINES="$(jq -r '.commits[]?.message | split("\n")[0] | select(length > 0) | "- " + .' "$GITHUB_EVENT_PATH" 2>/dev/null || true)"
+              if [ -n "$COMMIT_LINES" ]; then
+                printf '%s\n' "$COMMIT_LINES"
+              else
+                git log -n 3 --no-merges --pretty=format:"- %s"
+              fi
+            fi
+
             echo ""
             echo 'CHANGELOG_EOF'
           } >> "$GITHUB_OUTPUT"
